@@ -1,0 +1,314 @@
+{
+  "communities": {
+    "0": [
+      "modules_auth_gethighestfieldoffset",
+      "modules_auth_handletelemetryalert",
+      "modules_catalog_processcategoryadmformsubmission",
+      "modules_catalog_processcommonpackadmformsubmission",
+      "modules_catalog_processserviceadmformsubmission",
+      "modules_catalog_processsubserviceformsubmission",
+      "modules_catalog_rendercatalogsubservicescheckboxes",
+      "modules_refresh_loadworkspacedropdownmappings",
+      "modules_refresh_refreshalladministrativetables",
+      "modules_state_getcachedservices",
+      "modules_state_getcachedsubservices",
+      "modules_state_invalidateservicescache",
+      "modules_state_ownerfilter",
+      "modules_state_setutilizeoverrideconfirmed",
+      "modules_state_setutilizeoverridemeta",
+      "modules_state_setutilizeprevunpaidbalance",
+      "modules_visits",
+      "modules_visits_attachstaffdropdownhandler",
+      "modules_visits_buildstaffdropdownhtml",
+      "modules_visits_collectserviceproviders",
+      "modules_visits_deleteoldvisitrecord",
+      "modules_visits_getutilizeownermatch",
+      "modules_visits_loadstaffoptions",
+      "modules_visits_populateoldvisitdates",
+      "modules_visits_prefilloldvisitdata",
+      "modules_visits_processvisitdeductionformsubmission",
+      "modules_visits_renderutilizesubservicescheckboxes",
+      "modules_visits_rendervisithistory",
+      "modules_visits_updatecustomerallottedpacksdropdown",
+      "modules_visits_updateutilizenewunpaiddisplay",
+      "modules_visits_updateutilizeservicestotal"
+    ],
+    "1": [
+      "modules_customers_openquickaddcustomermodal",
+      "modules_customers_restoreuserprofileformtooriginallocation",
+      "modules_dashboard",
+      "modules_dashboard_bindrealtimeanalyticsstream",
+      "modules_dashboard_openglamtrackmodal",
+      "modules_dashboard_renderglamtrackexpiries",
+      "modules_dashboard_renderglamtrackpremium",
+      "modules_dashboard_renderglamtrackunengaged",
+      "modules_dashboard_scrolltoglamtracksection",
+      "modules_state",
+      "modules_state_col",
+      "modules_state_firebase_config",
+      "modules_state_firebaseapp",
+      "modules_state_glamtrackfullexpiries",
+      "modules_state_glamtrackfullpremium",
+      "modules_state_glamtrackfullunengaged",
+      "modules_state_setglamtrackfullexpiries",
+      "modules_state_setglamtrackfullpremium",
+      "modules_state_setglamtrackfullunengaged",
+      "modules_state_setpostregallotmodalinstance",
+      "modules_state_setquickaddcustomermode",
+      "modules_state_setrealtimepacksunsubscribe",
+      "modules_state_setuserprofileformoriginalnextsibling",
+      "modules_state_setuserprofileformoriginalparent"
+    ],
+    "2": [
+      "constants",
+      "constants_sample_categories",
+      "constants_sample_services",
+      "constants_sample_sub_services",
+      "errormailer",
+      "errormailer_reportruntimecrash",
+      "modules_auth",
+      "modules_auth_activity_events",
+      "modules_auth_executedynamicautopopulatemenutask",
+      "modules_auth_performsessionlogoutaction",
+      "modules_auth_processsecureprofileauthentication",
+      "modules_auth_renderauthorizedworkspacesession",
+      "modules_auth_resetsessionwatchdog",
+      "modules_auth_showactiveframe",
+      "modules_auth_startsessionwatchdog",
+      "modules_auth_stopsessionwatchdog",
+      "modules_customers_configureuserprofileformforrole",
+      "modules_state_invalidatecatalogcache",
+      "modules_state_setactivesessionuser",
+      "modules_state_setsalonownernamecontext",
+      "modules_state_setsessionwatchdogtimer",
+      "modules_state_setutilizestaffoptions"
+    ],
+    "3": [
+      "modules_allotment",
+      "modules_allotment_buildallotexistingreason",
+      "modules_allotment_handleallotcustomerselectchange",
+      "modules_allotment_handleallotmodifyclick",
+      "modules_allotment_handleallotpackselectchange",
+      "modules_allotment_hideallotextrauielements",
+      "modules_allotment_navigateallotexistingpack",
+      "modules_allotment_processaccesscontrolformsubmission",
+      "modules_allotment_processallotmentformsubmission",
+      "modules_allotment_resetallotexistingpackui",
+      "modules_allotment_showallotexistingpackatindex",
+      "modules_allotment_updateallotmentdiscountandbalance",
+      "modules_customers_closepostregallotmodal",
+      "modules_customers_getpostregallotmodalinstance",
+      "modules_main",
+      "modules_main_updateparentsrvclearbtn",
+      "modules_main_updatesubselectclearbtn",
+      "modules_main_wiredropdownsearch",
+      "modules_state_setallotcurrentpacktotalamount",
+      "modules_state_setallotexistingidx",
+      "modules_state_setallotexistingpacks"
+    ],
+    "4": [
+      "modules_catalog",
+      "modules_db",
+      "modules_db_appendcatalogdeletebutton",
+      "modules_refresh",
+      "modules_refresh_refreshpackdropdowns",
+      "modules_refresh_setupmediapreviewlistener",
+      "modules_state_allotexistingpacks",
+      "modules_state_allotpackscache",
+      "modules_state_db",
+      "modules_state_invalidatesubservicescache",
+      "modules_state_setoldvisitlogdocref",
+      "modules_state_setoldvisitprevaddlamt",
+      "modules_state_setoldvisitprevcalccost",
+      "modules_ui",
+      "modules_ui_applypacktypeui",
+      "modules_ui_renderhomepage",
+      "modules_ui_updatepackdiscountdisplay",
+      "modules_ui_updatepacksubservicesrunningsum",
+      "modules_visits_resetoldvisitui"
+    ],
+    "5": [
+      "modules_customers",
+      "modules_customers_applyuserformmode",
+      "modules_customers_closequickaddcustomermodal",
+      "modules_customers_getquickaddcustomermodalinstance",
+      "modules_customers_openpostregallotmodal",
+      "modules_customers_processchangepasswordsubmission",
+      "modules_customers_processuseradmformsubmission",
+      "modules_customers_refreshusertableformode",
+      "modules_customers_repopulateuserselectexisting",
+      "modules_customers_restoreallotformtooriginallocation",
+      "modules_customers_updatepasswordrequirementforrole",
+      "modules_db_fetchownerrecordbycode",
+      "modules_db_removecatalogdeletebutton",
+      "modules_refresh_refreshcustomerdropdown",
+      "modules_refresh_refreshuserprofiledropdown",
+      "modules_state_setallotformoriginalnextsibling",
+      "modules_state_setallotformoriginalparent",
+      "modules_state_setpostregallotmode",
+      "modules_state_setquickaddcustomermodalinstance"
+    ],
+    "6": [
+      "manifest",
+      "manifest_background_color",
+      "manifest_description",
+      "manifest_display",
+      "manifest_icons",
+      "manifest_name",
+      "manifest_orientation",
+      "manifest_short_name",
+      "manifest_start_url",
+      "manifest_theme_color"
+    ],
+    "7": [
+      "sw",
+      "sw_static_assets"
+    ]
+  },
+  "cohesion": {
+    "0": 0.16774193548387098,
+    "1": 0.14855072463768115,
+    "2": 0.19913419913419914,
+    "3": 0.2714285714285714,
+    "4": 0.23391812865497075,
+    "5": 0.21052631578947367,
+    "6": 0.2,
+    "7": 1.0
+  },
+  "gods": [
+    {
+      "id": "modules_auth_handletelemetryalert",
+      "label": "handleTelemetryAlert()",
+      "degree": 30
+    },
+    {
+      "id": "modules_refresh_refreshalladministrativetables",
+      "label": "refreshAllAdministrativeTables()",
+      "degree": 16
+    },
+    {
+      "id": "modules_customers_processuseradmformsubmission",
+      "label": "processUserADMFormSubmission()",
+      "degree": 15
+    },
+    {
+      "id": "modules_state_setallotcurrentpacktotalamount",
+      "label": "setAllotCurrentPackTotalAmount()",
+      "degree": 15
+    },
+    {
+      "id": "modules_state_ownerfilter",
+      "label": "_ownerFilter()",
+      "degree": 14
+    },
+    {
+      "id": "modules_state_setallotexistingidx",
+      "label": "setAllotExistingIdx()",
+      "degree": 13
+    },
+    {
+      "id": "modules_state_setquickaddcustomermode",
+      "label": "setQuickAddCustomerMode()",
+      "degree": 13
+    },
+    {
+      "id": "modules_refresh_loadworkspacedropdownmappings",
+      "label": "loadWorkspaceDropdownMappings()",
+      "degree": 12
+    },
+    {
+      "id": "modules_state_setactivesessionuser",
+      "label": "setActiveSessionUser()",
+      "degree": 12
+    },
+    {
+      "id": "modules_state_setsessionwatchdogtimer",
+      "label": "setSessionWatchdogTimer()",
+      "degree": 12
+    }
+  ],
+  "surprises": [
+    {
+      "source": "handleTelemetryAlert()",
+      "target": "reportRuntimeCrash()",
+      "source_files": [
+        "modules/auth.js",
+        "errorMailer.js"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "executeDynamicAutopopulateMenuTask()",
+      "target": "SAMPLE_CATEGORIES",
+      "source_files": [
+        "modules/auth.js",
+        "constants.js"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "connects across different repos/directories"
+    },
+    {
+      "source": "executeDynamicAutopopulateMenuTask()",
+      "target": "SAMPLE_SERVICES",
+      "source_files": [
+        "modules/auth.js",
+        "constants.js"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "connects across different repos/directories"
+    },
+    {
+      "source": "executeDynamicAutopopulateMenuTask()",
+      "target": "SAMPLE_SUB_SERVICES",
+      "source_files": [
+        "modules/auth.js",
+        "constants.js"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "connects across different repos/directories"
+    },
+    {
+      "source": "processUserADMFormSubmission()",
+      "target": "resetAllotExistingPackUI()",
+      "source_files": [
+        "modules/customers.js",
+        "modules/allotment.js"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities"
+    }
+  ],
+  "questions": [
+    {
+      "type": "bridge_node",
+      "question": "Why does `handleTelemetryAlert()` connect `visits.js` to `state.js`, `auth.js`, `main.js`, `catalog.js`, `customers.js`?",
+      "why": "High betweenness centrality (0.029) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `_ownerFilter()` connect `visits.js` to `state.js`, `main.js`, `catalog.js`?",
+      "why": "High betweenness centrality (0.007) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `setSessionWatchdogTimer()` connect `auth.js` to `visits.js`, `state.js`, `main.js`, `catalog.js`, `customers.js`?",
+      "why": "High betweenness centrality (0.007) - this node is a cross-community bridge."
+    },
+    {
+      "type": "isolated_nodes",
+      "question": "What connects `name`, `short_name`, `description` to the rest of the system?",
+      "why": "12 weakly-connected nodes found - possible documentation gaps or missing edges."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `state.js` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.14855072463768115 - nodes in this community are weakly interconnected."
+    }
+  ]
+}

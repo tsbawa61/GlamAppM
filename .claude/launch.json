@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Python HTTP Server (Port 8000)",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8000"],
+      "port": 8000
+    },
+    {
+      "name": "Netlify Dev",
+      "runtimeExecutable": "netlify",
+      "runtimeArgs": ["dev"],
+      "port": 8888
+    }
+  ]
+}

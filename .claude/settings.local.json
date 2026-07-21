@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node --check modules/customers.js)",
+      "Bash(node --check modules/main.js)",
+      "PowerShell(node --check \"E:\\\\GlamTrack\\\\GlamAppModular\\\\GlamAppModHome\\\\modules\\\\customers.js\")",
+      "PowerShell(cd \"E:\\\\GlamTrack\\\\GlamAppModular\\\\GlamAppModHome\"; & \\(Get-Content graphify-out\\\\.graphify_python\\) -m graphify.cli query \"Visit History not appearing in frm-utilize-service-visit\")",
+      "PowerShell(grep -c \"^}\\);\" \"E:\\\\GlamTrack\\\\GlamAppModular\\\\GlamAppModHome\\\\modules\\\\main.js\")",
+      "PowerShell(\\(Get-Content \"E:\\\\GlamTrack\\\\GlamAppModular\\\\GlamAppModHome\\\\modules\\\\main.js\" | Select-String \"^}\\);\" | Measure-Object\\).Count)",
+      "PowerShell(\\(Get-Content \"E:\\\\GlamTrack\\\\GlamAppModular\\\\GlamAppModHome\\\\modules\\\\main.js\" | Select-String '^\\\\}\\\\\\);' | Measure-Object\\).Count)",
+      "PowerShell(node --check \"E:\\\\GlamTrack\\\\GlamAppModular\\\\GlamAppModHome\\\\modules\\\\main.js\")",
+      "PowerShell(node --check \"E:\\\\GlamTrack\\\\GlamAppModular\\\\GlamAppModHome\\\\modules\\\\allotment.js\")",
+      "PowerShell(node --check \"E:\\\\GlamTrack\\\\GlamAppModular\\\\GlamAppModHome\\\\modules\\\\visits.js\")",
+      "Bash(grep -n \"// Load initial packages table\\\\|loadPackagesTable\\(\\)\" \"E:\\\\GlamTrack\\\\GlamAppModular\\\\GlamAppModHome\\\\modules\\\\main.js\")"
+    ]
+  }
+}

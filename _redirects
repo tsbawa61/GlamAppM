@@ -1,0 +1,7 @@
+# Netlify _redirects
+
+# Silence Chrome DevTools JSON request (returns empty 204 response)
+/.well-known/appspecific/com.chrome.devtools.json  /devtools-stub.json  200
+
+# All unmatched routes → index.html (SPA fallback)
+/*  /index.html  200
