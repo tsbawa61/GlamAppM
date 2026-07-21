@@ -1,7 +1,6 @@
 {
   "buildCommand": "echo 'Building...'",
   "outputDirectory": ".",
-  "public": ".",
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
