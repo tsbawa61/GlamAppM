@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>GlamTrack - Salon Manager</title>
+
+    <!-- PWA: Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- PWA: Theme and Status Bar -->
+    <meta name="theme-color" content="#6f42c1">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <!-- PWA: iOS specific -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="GlamTrack">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152.png">
+
+    <!-- PWA: Description and MS Tile -->
+    <meta name="description" content="Salon management app for packages, visits, and customer tracking.">
+    <meta name="msapplication-TileColor" content="#6f42c1">
+    <meta name="msapplication-TileImage" content="icons/icon-144.png">
+
+    <link href="vendor/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .view-section { display: none; }
+        .view-section.active { display: block; }
+        body { padding-bottom: 2rem; }
+        .container-fluid.main-wrap { padding-bottom: 2rem; }
+        /* sec-login: white card above background image */
+        #sec-login {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 1.5rem !important;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+            max-width: 480px;
+            margin: 2rem auto;
+            position: relative;
+            z-index: 200;
+        }
+        /* sec-home: fixed footer, below sec-login z-index */
+        #sec-home {
+            position: fixed !important;
+            bottom: 0; left: 0; right: 0;
+            max-height: 320px;
+            overflow-y: auto;
+            background: rgba(255,255,255,0.96);
+            border-top: 2px solid #dee2e6;
+            z-index: 1000;
+            padding: 0.5rem 1rem !important;
+        }
+        #sec-home h1 { font-size: 2.2rem; margin-bottom: 0.4rem; }
+        #sec-home p  { font-size: 1.6rem; margin-bottom: 0.4rem; }
+        .container { padding-bottom: 330px; }
+        /* White background when no bg image */
+        body:not(.bg-glamtrack) > .container { background: #ffffff; }
+        /* Background image: contained, no overflow, scroll not fixed */
+        body.bg-glamtrack {
+            background-image: url('bckgroundGlamTrack.png');
+            background-size: cover;
+            background-position: center top;
+            background-repeat: no-repeat;
+            background-attachment: scroll;
+            min-height: 100vh;
+            max-width: 100vw;
+            overflow-x: hidden;
+        }
+        body.bg-glamtrack > .container {
+            background: transparent !important;
+            box-shadow: none !important;
+            padding-top: 0 !important;
+        }
+        body.bg-glamtrack .container-fluid > .view-section.active {
+            background: rgba(255,255,255,0.92);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+        /* Glamtrack stat cards clickable */
+        .glamtrack-stat-clickable { cursor: pointer; transition: box-shadow .15s; }
+        .glamtrack-stat-clickable:hover { box-shadow: 0 0 0 3px rgba(0,0,0,.15); }
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container { padding-bottom: 160px; max-width: 100% !important; }
+            #sec-home { max-height: 140px; z-index: 50; margin-top: 0 !important; padding-top: 0.25rem !important; }
+            #sec-home h1 { font-size: 1.1rem; }
+            #sec-home p  { font-size: 0.85rem; }
+            #sec-login { margin: 0.75rem auto; }
+            .display-6 { font-size: 1.3rem !important; }
+            .card-body { padding: 0.75rem !important; }
+            .table { font-size: 0.75rem; }
+            .form-control, .form-select { font-size: 0.875rem; }
+            .btn { font-size: 0.875rem; }
+            /* Background image: show wholly within mobile viewport, no cropping */
+            body.bg-glamtrack {
+                background-size: contain;
+                background-position: center top;
+                background-repeat: no-repeat;
+            }
+            .col-md-6, .col-md-4, .col-md-3 { width: 100%; }
+            /* Navbar: keep menu items compact on mobile */
+            #main-nav-links .nav-link { font-size: 0.82rem; padding: 0.2rem 0.4rem; }
+            #main-nav-links .dropdown-toggle { font-size: 0.82rem; }
+            #lbl-salon-name, #lbl-logged-in-role, #lbl-active-context { font-size: 0.72rem; }
+            /* (f) User profile form card scrollable on mobile */
+            #card-user-profile-form { max-height: 80vh; overflow-y: auto; }
+        }
+        /* On md+ screens, suppress the mobile line-break div */
+        @media (min-width: 768px) {
+            #main-nav-links { flex-wrap: nowrap !important; }
+            #main-nav-links .d-md-none { display: none !important; }
+        }
+        /* Offline banner */
+        #offline-banner {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 9999;
+            background: #dc3545;
+            color: #fff;
+            text-align: center;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+        /* Fluid font scaling for large system fonts */
+        html { font-size: clamp(13px, 2vw, 16px); }
+        /* Keyboard padding on mobile so submit buttons stay visible */
+        @media (max-width: 768px) {
+            .view-section.active { padding-bottom: 80px !important; }
+        }
+        /* Privacy policy footer */
+        #privacy-footer {
+            text-align: center;
+            padding: 0.4rem;
+            font-size: 0.78rem;
+            color: #6c757d;
+            border-top: 1px solid #dee2e6;
+            background: #fff;
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            z-index: 999;
+        }
+        #privacy-footer a { color: #6f42c1; text-decoration: none; }
+        #privacy-footer a:hover { text-decoration: underline; }
+        #allot-sold-price::-webkit-outer-spin-button,
+        #allot-sold-price::-webkit-inner-spin-button,
+        #allot-amount-received::-webkit-outer-spin-button,
+        #allot-amount-received::-webkit-inner-spin-button,
+        #utilize-addl-amt-received::-webkit-outer-spin-button,
+        #utilize-addl-amt-received::-webkit-inner-spin-button,
+        #sub-rate::-webkit-outer-spin-button,
+        #sub-rate::-webkit-inner-spin-button,
+        #pack-total-amt::-webkit-outer-spin-button,
+        #pack-total-amt::-webkit-inner-spin-button,
+        #pack-price::-webkit-outer-spin-button,
+        #pack-price::-webkit-inner-spin-button,
+        #usr-reg-fee::-webkit-outer-spin-button,
+        #usr-reg-fee::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    </style>
+</head>
+<body class="bg-light">
+
+    <!-- Offline detection banner -->
+    <div id="offline-banner">📡 No internet connection — please check your network and try again.</div>
+
+    <nav class="navbar navbar-dark bg-dark mb-4 py-1">
+        <div class="container-fluid d-flex flex-column px-2">
+
+            <!-- Row 1: GlamTrack brand + Menu items (shown after login) -->
+            <div class="d-flex flex-wrap align-items-center gap-1" id="main-nav-links">
+
+                <!-- GlamTrack brand — first in menu row -->
+                <a class="navbar-brand fw-bold mb-0 me-1" id="nav-glamtrack" style="cursor:pointer; font-size:1.1rem; color:#fff;">GlamTrack</a>
+
+                <!-- Sign In (pre-login only) -->
+                <a class="nav-link text-white py-1 px-2" id="nav-login">Sign In</a>
+
+                <!-- Line 1: Customers + Packages -->
+                <div class="nav-item dropdown d-none" id="nav-customers-wrapper">
+                    <a class="nav-link dropdown-toggle text-white py-1 px-2" data-bs-toggle="dropdown" role="button" aria-expanded="false">Customers</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" id="nav-customer-visit">Customer Visit</a></li>
+                        <li><a class="dropdown-item" id="nav-customer-reg">Customer Registration</a></li>
+                    </ul>
+                </div>
+
+                <div class="nav-item dropdown d-none" id="nav-packages-wrapper">
+                    <a class="nav-link dropdown-toggle text-white py-1 px-2" data-bs-toggle="dropdown" role="button" aria-expanded="false">Packages</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" id="nav-package-purchase">Package Purchase</a></li>
+                        <li><a class="dropdown-item" id="nav-package-inventory">Package Inventory</a></li>
+                    </ul>
+                </div>
+
+                <!-- Force wrap: Services + Admin go to new line on mobile -->
+                <div class="w-100 d-md-none"></div>
+
+                <!-- Line 2: Services + Admin -->
+                <a class="nav-link text-white py-1 px-2 d-none" id="nav-services">Services</a>
+
+                <div class="nav-item dropdown d-none" id="nav-admin-wrapper">
+                    <a class="nav-link dropdown-toggle text-white py-1 px-2" data-bs-toggle="dropdown" role="button" aria-expanded="false">Admin</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" id="nav-staff-reg">Staff Registration</a></li>
+                        <li><a class="dropdown-item" id="nav-change-pwd">Password Change</a></li>
+                    </ul>
+                </div>
+
+                <!-- Legacy hidden IDs kept for JS compatibility -->
+                <a class="nav-link d-none" id="nav-gallery" style="display:none!important;"></a>
+                <a class="d-none" id="nav-home"></a>
+                <a class="d-none" id="nav-dashboard"></a>
+                <a class="d-none" id="nav-adm-packs"></a>
+                <a class="d-none" id="nav-adm-catalog"></a>
+                <div class="d-none" id="nav-adm-users-wrapper">
+                    <a id="nav-adm-users"></a>
+                    <a id="nav-adm-users-custstaff"></a>
+                    <a id="nav-adm-users-changepwd"></a>
+                </div>
+            </div>
+
+            <!-- Row 2: Salon name + role + logout (lbl-active-context hidden — userNo not shown) -->
+            <div class="d-flex align-items-center w-100 gap-2 flex-wrap mt-1">
+                <span class="navbar-text text-white fw-bold small" id="lbl-salon-name"></span>
+                <span class="navbar-text text-warning small" id="lbl-logged-in-role"></span>
+                <!-- lbl-active-context kept in DOM for JS compatibility but hidden -->
+                <span class="d-none" id="lbl-active-context"></span>
+                <button class="btn btn-outline-danger btn-sm d-none ms-auto" id="nav-logout">Log Out</button>
+            </div>
+
+        </div>
+    </nav>
+
+    <section id="sec-home" class="text-center py-2 position-relative">
+            <h1 class="display-5 fw-bold text-dark">Welcome to GlamTrack</h1>
+            <p class="lead text-muted">Manage your salon appointments, customer packages, and service balances easily.</p>
+            <div id="home-gallery" style="display:none;" class="mt-4 px-2">
+                <div class="row g-3" id="home-gallery-grid"></div>
+                <div class="d-flex justify-content-center gap-2 mt-3">
+                    <span class="home-gallery-dot rounded-circle bg-dark" style="width:12px;height:12px;cursor:pointer;display:inline-block;transition:background .3s"></span>
+                    <span class="home-gallery-dot rounded-circle bg-secondary" style="width:12px;height:12px;cursor:pointer;display:inline-block;transition:background .3s"></span>
+                </div>
+            </div>
+        </section>
+
+    <div class="container" style="max-width: 900px; padding: 0;">
+
+        <section id="sec-login" class="view-section">
+            <h3 class="mb-3 fw-bold">Sign In to Your Account</h3>
+            <form id="frm-login" onsubmit="document.getElementById('btn-execute-auth').click(); return false;" novalidate>
+            <div class="mb-3">
+                <label class="form-label small fw-bold">Your Role</label>
+                <select class="form-select" id="txt-login-role">
+                    <option value="OWNER" selected>Salon Owner</option>
+                    <option value="MANAGER">Manager</option>
+                    <option value="STAFF" hidden>Salon Staff / Stylist</option>
+                    <option value="SUPER_USER">System Administrator</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label small fw-bold">Email Address</label>
+                <input type="email" class="form-control" id="txt-login-email" placeholder="name@salon.com" autocomplete="email">
+                <div class="invalid-feedback" id="err-login-email"></div>
+            </div>
+            <div class="mb-3" id="grp-login-pass">
+                <label class="form-label small fw-bold">Password</label>
+                <input type="password" class="form-control" id="txt-login-pass" placeholder="Enter your password" autocomplete="current-password">
+                <div class="invalid-feedback" id="err-login-pass"></div>
+            </div>
+            <div class="alert alert-danger py-2 small d-none" id="err-login-general" role="alert"></div>
+            <button type="submit" class="btn btn-primary w-100" id="btn-execute-auth">Sign In</button>
+            <button type="button" class="btn btn-outline-secondary w-100 mt-2" onclick="window.close()">Close</button>
+            <p class="text-muted small text-center mt-3 mb-0">
+                <strong>Test account:</strong> Use credentials provided by your administrator.
+            </p>
+            </form>
+        </section>
+
+        <!-- GlamTrack landing section -->
+        <section id="sec-glamtrack" class="view-section">
+
+            <!-- Stat cards row -->
+            <div class="row text-center mb-4 mt-2 g-2">
+                <div class="col-6 col-md-3">
+                    <div class="p-3 bg-primary-subtle rounded border h-100">
+                        <div class="text-uppercase text-muted small fw-bold mb-1">Active Packages</div>
+                        <div class="display-6 fw-bold" id="stat-active-packs-glamtrack">0</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="p-3 bg-danger-subtle rounded border h-100 glamtrack-stat-clickable" id="stat-expiring-card" onclick="scrollToGlamtrackSection('expiries-section')">
+                        <div class="text-uppercase text-muted small fw-bold mb-1">Expiring in 10 Days</div>
+                        <div class="display-6 fw-bold text-danger" id="stat-expiring-glamtrack">0</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="p-3 bg-warning-subtle rounded border h-100 glamtrack-stat-clickable" id="stat-unengaged-card" onclick="scrollToGlamtrackSection('unengaged-section')">
+                        <div class="text-uppercase text-muted small fw-bold mb-1">Unengaged Customers</div>
+                        <div class="display-6 fw-bold text-warning" id="stat-unengaged-glamtrack">0</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="p-3 bg-success-subtle rounded border h-100 glamtrack-stat-clickable" id="stat-premium-card" onclick="scrollToGlamtrackSection('premium-section')">
+                        <div class="text-uppercase text-muted small fw-bold mb-1">Premium Customers</div>
+                        <div class="display-6 fw-bold text-success" id="stat-premium-glamtrack">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- i) Packages Expiring in 10 Days -->
+            <div class="card mb-4 border-danger" id="expiries-section">
+                <div class="card-header bg-danger text-white fw-bold">
+                    <span>Packages Expiring in 10 Days</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover my-0 small">
+                        <thead class="table-light"><tr><th>Customer ID</th><th>Package Name</th><th>Phone</th><th>Expiry Date</th></tr></thead>
+                        <tbody id="tbl-dash-expiries"></tbody>
+                    </table>
+                </div>
+                <div class="card-footer text-end">
+                    <button type="button" class="btn btn-danger btn-sm d-none" id="btn-viewmore-expiries" onclick="openGlamtrackModal('expiries')">View More</button>
+                </div>
+            </div>
+
+            <div class="card mb-4 border-warning" id="unengaged-section">
+                <div class="card-header bg-warning text-dark fw-bold">
+                    <span>Unengaged Customers (No Visit in last 6M)</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover my-0 small">
+                        <thead class="table-light"><tr><th>Customer ID</th><th>Name</th><th>Phone</th><th>Email</th><th>Last Visit</th></tr></thead>
+                        <tbody id="tbl-glamtrack-unengaged"></tbody>
+                    </table>
+                </div>
+                <div class="card-footer text-end">
+                    <button type="button" class="btn btn-warning btn-sm d-none" id="btn-viewmore-unengaged" onclick="openGlamtrackModal('unengaged')">View More</button>
+                </div>
+            </div>
+
+            <!-- iii) Premium Customers -->
+            <div class="card mb-4 border-success" id="premium-section">
+                <div class="card-header bg-success text-white fw-bold">
+                    <span>Premium Customers (Last 1Y &gt; ₹20k)</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover my-0 small">
+                        <thead class="table-light"><tr><th>Customer ID</th><th>Name</th><th>Phone</th><th>Email</th><th>Total Spend (₹)</th></tr></thead>
+                        <tbody id="tbl-glamtrack-premium"></tbody>
+                    </table>
+                </div>
+                <div class="card-footer text-end">
+                    <button type="button" class="btn btn-success btn-sm d-none" id="btn-viewmore-premium" onclick="openGlamtrackModal('premium')">View More</button>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Payment History Popup Modal — compact, positioned near the ledger icon -->
+        <div class="modal fade" id="modal-payment-history" aria-labelledby="modal-payment-history-title" aria-modal="true" role="dialog">
+            <div class="modal-dialog modal-sm modal-dialog-scrollable" style="max-width:280px;">
+                <div class="modal-content shadow-lg">
+                    <div class="modal-header bg-dark text-white py-2 px-3">
+                        <h6 class="modal-title fw-bold mb-0 small" id="modal-payment-history-title">💰 Payment History</h6>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-0">
+                        <table class="table table-sm table-hover mb-0 small">
+                            <thead class="table-dark sticky-top">
+                                <tr>
+                                    <th class="py-1 px-2">Receipt Date</th>
+                                    <th class="text-end py-1 px-2">Amt Rcvd (₹)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbl-payment-history"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Wallet Ledger Popup Modal -->
+        <div class="modal fade" id="modal-wallet-ledger" aria-labelledby="modal-wallet-ledger-title" aria-modal="true" role="dialog">
+            <div class="modal-dialog modal-sm modal-dialog-scrollable" style="max-width:350px;">
+                <div class="modal-content shadow-lg">
+                    <div class="modal-header bg-dark text-white py-2 px-3">
+                        <h6 class="modal-title fw-bold mb-0 small" id="modal-wallet-ledger-title">📋 Services Wallet Ledger</h6>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-2">
+                        <div id="wallet-ledger-content" class="small" style="max-height:400px;overflow-y:auto;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Post-Customer-Registration "Sell Package" Modal Shell: EMPTY by default.
+             The existing #card-allot-membership-form node (containing
+             frm-allot-membership) is moved INTO this shell's .modal-body via JS
+             ONLY when the user answers "Yes" to "Do you want to Sell a Package to
+             this Customer?" right after Customer Registration — and moved BACK to
+             its original location in #sec-allot when the modal closes. The normal
+             "Packages > Package Purchase" nav flow is completely untouched (it
+             always shows the form inline in #sec-allot as before). -->
+        <div class="modal fade" id="modal-post-reg-allot" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-body p-0" id="modal-post-reg-allot-body"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick-Add Customer Modal Shell: EMPTY by default. The existing
+             #card-user-profile-form node (containing frm-adm-user-profile) is
+             moved INTO this shell's .modal-body via JS only when the "+" button
+             in Sell Package form is clicked, and moved BACK to its original
+             location in #sec-adm-users when the modal closes. This guarantees
+             only ONE copy of frm-adm-user-profile ever exists in the DOM, and
+             the normal "Customer Registration" nav flow is completely untouched
+             (it always shows the form inline in #sec-adm-users as before). -->
+        <div class="modal fade" id="modal-quick-add-customer" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-body p-0" id="modal-quick-add-customer-body"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- View More Modal (shared) -->
+        <div class="modal fade" id="glamtrackModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold" id="glamtrackModalTitle">Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover my-0 small">
+                                <thead class="table-light" id="glamtrackModalHead"></thead>
+                                <tbody id="glamtrackModalBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <section id="sec-dashboard" class="view-section" style="display:none;">
+            <!-- Legacy hidden section kept for JS scroll-target compatibility -->
+        </section>
+
+        <section id="sec-visit" class="view-section">
+            <h3 class="mb-4 fw-bold">Customer Visit</h3>
+            <div class="card mb-4 border-primary">
+                <div class="card-header bg-primary text-white fw-bold">Customer's New Visit For Availing Package</div>
+                <div class="card-body">
+                    <form id="frm-utilize-service-visit">
+                        <!-- Row 1: Customer select (left) | Wallet Balance (right) -->
+                        <div class="row">
+                            <div class="col-md-8 mb-2">
+                                <label class="form-label small fw-bold">Select Customer</label>
+                                <select class="form-select" id="utilize-customer-select" required tabindex="1"></select>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label small fw-bold">Services Wallet Balance</label>
+                                <div class="d-flex align-items-center gap-2">
+                                    <input type="text" class="form-control" id="utilize-wallet-balance" readonly disabled placeholder="₹0">
+                                    <button type="button" id="btn-wallet-ledger"
+                                        title="Click to view wallet ledger"
+                                        data-bs-toggle="tooltip" data-bs-placement="top"
+                                        style="flex-shrink:0;border:none;background:none;padding:0;cursor:pointer;"
+                                        aria-label="Wallet Ledger">
+                                        <img src="/icons/ledger1.png" alt=""
+                                            style="width:2rem;height:2rem;object-fit:cover;border-radius:4px;border:1px solid var(--bs-border-color);">
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Row 2: Customer search -->
+                        <div class="mb-2">
+                            <div class="position-relative">
+                                <input type="text" id="utilize-customer-search" class="form-control form-control-sm pe-4" placeholder="🔍 Search customer by name…" autocomplete="off">
+                                <button type="button" id="btn-clear-utilize-customer-search" tabindex="-1"
+                                    style="position:absolute;right:6px;top:50%;transform:translateY(-50%);border:none;background:none;color:var(--bs-secondary);font-size:14px;line-height:1;padding:0;cursor:pointer;display:none;"
+                                    aria-label="Clear search">&#x2715;</button>
+                            </div>
+                        </div>
+                        <!-- Row 3: Package select -->
+                        <div class="mb-2">
+                            <label class="form-label small fw-bold">Select Active Package</label>
+                            <select class="form-select" id="utilize-pack-select" required tabindex="2">
+                                <option value="">-- Choose a Customer First --</option>
+                            </select>
+                        </div>
+                        <!-- Row 4: Package search (hidden) -->
+                        <div style="display:none;">
+                            <div class="position-relative">
+                                <input type="text" id="utilize-pack-search" class="form-control form-control-sm pe-4" placeholder="🔍 Search package by name…" autocomplete="off">
+                                <button type="button" id="btn-clear-utilize-pack-search" tabindex="-1"
+                                    style="position:absolute;right:6px;top:50%;transform:translateY(-50%);border:none;background:none;color:var(--bs-secondary);font-size:14px;line-height:1;padding:0;cursor:pointer;display:none;"
+                                    aria-label="Clear search">&#x2715;</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Row 3: Visit type radios (left) | Old visit date wrapper (right) [point e] -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="d-flex gap-3 mt-1" id="utilize-visit-type-group">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="utilize-visit-type" id="utilize-visit-new" value="New Visit" checked>
+                                        <label class="form-check-label small fw-bold" for="utilize-visit-new">New Visit</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="utilize-visit-type" id="utilize-visit-old" value="Old Visit">
+                                        <label class="form-check-label small fw-bold" for="utilize-visit-old">Modify Old Visit</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <!-- Old Visit: previous visit date dropdown (hidden by default) -->
+                                <div id="utilize-old-visit-wrapper" style="display:none;">
+                                    <label class="form-label small fw-bold mb-1">Choose Previous Visit Date:</label>
+                                    <select class="form-select form-select-sm" id="utilize-old-visit-date-select">
+                                        <option value="">-- Select a Previous Visit Date --</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="utilize-pack-financial" class="mb-3 p-3 bg-warning-subtle border border-warning rounded small" style="display:none;">
+                            <div class="fw-bold mb-2 text-warning-emphasis">💳 Package Financial Summary</div>
+                            <div id="utilize-pack-financial-details"></div>
+                        </div>
+                        <div class="row align-items-end mb-3">
+                            <div class="col-md-6" id="utilize-addl-amt-wrapper">
+                                <label class="form-label small fw-bold">Pay Unpaid Balance (₹)[Optional]</label>
+                                <div class="d-flex align-items-center gap-2">
+                                    <input type="number" class="form-control" id="utilize-addl-amt-received" placeholder="Cash / UPI received now" value="0" min="0" step="any" style="-moz-appearance:textfield; appearance:textfield;">
+                                    <span id="utilize-new-unpaid-display" class="fw-bold small text-nowrap"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <label class="form-label small fw-bold mb-0">Services Provided During Today's Visit</label>
+                                <button type="button" id="btn-toggle-subservices" style="background: none; border: none; padding: 4px; cursor: pointer; display: flex; align-items: center;" title="Toggle full/checked view" aria-label="Toggle services view">
+                                    <svg id="icon-toggle-subservices" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                        <circle cx="12" cy="12" r="3" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <input type="text" id="utilize-subservices-search" class="form-control form-control-sm mb-2" placeholder="🔍 Search service items…" autocomplete="off">
+                            <div id="container-utilize-subservices" class="p-3 border rounded bg-light" tabindex="3" style="max-height:310px; overflow-y:auto;">
+                                <span class="text-muted small">Please choose a package above to see available items.</span>
+                            </div>
+                            <div id="utilize-services-total" class="mt-2 fw-bold small text-primary" style="display:none;"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Visit Date</label>
+                            <input type="date" class="form-control" id="utilize-visit-date" required tabindex="4">
+                        </div>
+                        <div class="d-flex gap-2 mt-2">
+                        <button type="submit" class="btn btn-primary w-100 fw-bold" id="btn-utilize-submit">Save Visit</button>
+                        <button type="button" class="btn btn-danger w-100 d-none" id="btn-utilize-delete">Delete Visit</button>
+                        <button type="button" class="btn btn-outline-secondary w-100" id="btn-reset-utilize">Reset</button>
+                        </div>
+                    </form>
+                    <div id="utilize-visit-history" style="display:none;" class="mt-3">
+                        <div class="card border-secondary">
+                            <div class="card-header bg-secondary-subtle fw-bold small">📋 Visit History for <span id="utilize-visit-history-customer"></span></div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive" style="max-height:175px; overflow-y:auto;">
+                                    <table class="table table-sm table-hover mb-0 small">
+                                        <thead class="table-light sticky-top">
+                                            <tr>
+                                                <th>Visit Date</th>
+                                                <th>Services Availed</th>
+                                                <th>Services Cost (₹)</th>
+                                                <th>Bal Amt Received (₹)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbl-utilize-visit-history"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Hidden stat kept for JS bindRealtimeAnalyticsStream compatibility -->
+        <span id="stat-active-packs" style="display:none;">0</span>
+        <!-- Hidden autopopulate button kept for JS compatibility -->
+        <button class="d-none" id="btn-trigger-autopopulate" disabled></button>
+
+        <section id="sec-allot" class="view-section">
+            <h3 class="mb-4 fw-bold" id="lbl-sell-package-heading">Package Purchase</h3>
+            <div class="card" id="card-allot-membership-form">
+                <div class="card-header bg-dark text-white fw-bold">Sell Package to a Customer</div>
+                <div class="card-body">
+                    <form id="frm-allot-membership">
+                        <!-- Alert message for existing packages -->
+                        <div id="allot-existing-alert" class="alert alert-warning small py-2 mb-2" style="display:none;"></div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold">Select Customer</label>
+                                <div class="d-flex gap-2 align-items-start">
+                                    <select class="form-select" id="allot-customer-select" required></select>
+                                    <button type="button" class="btn btn-success fw-bold px-3" id="btn-quick-add-customer"
+                                            title="To ADD a New Customer Click here"
+                                            data-bs-toggle="tooltip" data-bs-placement="top">+</button>
+                                </div>
+                                <div class="position-relative mt-1">
+                                    <input type="text" id="allot-customer-search" class="form-control form-control-sm pe-4" placeholder="🔍 Search customer by name…" autocomplete="off">
+                                    <button type="button" id="btn-clear-allot-customer-search" tabindex="-1"
+                                        style="position:absolute;right:6px;top:50%;transform:translateY(-50%);border:none;background:none;color:var(--bs-secondary);font-size:14px;line-height:1;padding:0;cursor:pointer;display:none;"
+                                        aria-label="Clear search">&#x2715;</button>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold">Select Package </label>
+                                <select class="form-select" id="allot-pack-select" required></select>
+                                <!-- allot-pack-search hidden per requirement -->
+                                <div style="display:none;">
+                                    <input type="text" id="allot-pack-search" class="form-control form-control-sm pe-4" placeholder="🔍 Search package by name…" autocomplete="off">
+                                    <button type="button" id="btn-clear-allot-pack-search" tabindex="-1"
+                                        style="display:none;" aria-label="Clear search">&#x2715;</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="allot-pack-preview" class="mb-3 p-3 bg-info-subtle border border-info rounded small" style="display:none;">
+                            <div class="fw-bold mb-2 text-info-emphasis">📦 Package Contents</div>
+                            <div id="allot-pack-preview-details" style="overflow:hidden;"></div>
+                        </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Selling Price (₹)</label>
+                                <div class="d-flex align-items-center gap-2">
+                                    <input type="number" class="form-control" id="allot-sold-price" placeholder="Price charged to Customer" required min="0.01" step="any" style="-moz-appearance:textfield; appearance:textfield;">
+                                    <span id="allot-sold-discount" class="fw-bold small text-nowrap"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Initial Payment Received (₹)</label>
+                                <div class="d-flex align-items-center gap-2">
+                                    <input type="number" class="form-control" id="allot-amount-received" placeholder="Cash / UPI received at the time of Selling" min="0" step="any" style="-moz-appearance:textfield; appearance:textfield; max-width: 140px;">
+                                    <span id="allot-unpaid-display" class="fw-bold small text-nowrap"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold">Activation Date</label>
+                                <input type="date" class="form-control" id="allot-start-date" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold">Expiration Date (optional)</label>
+                                <input type="date" class="form-control" id="allot-expiry-date">
+                            </div>
+                        </div>
+                        <!-- Extra fields box - shown only when existing active package found -->
+                        <div class="border border-info p-3 rounded mb-3" id="allot-extra-fields-box" style="display:none;background-color:rgba(13,110,253,0.05);">
+                            <!-- Row i: Original Price (left) | Remaining Balance (right) -->
+                            <div class="row mb-2" id="allot-extra-row-1">
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold">Original Price (₹)</label>
+                                    <input type="text" class="form-control" id="allot-original-price" readonly disabled>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold">Remaining Services Balance</label>
+                                    <input type="text" class="form-control" id="allot-remaining-balance" readonly disabled>
+                                </div>
+                            </div>
+                            <!-- Row ii: Unpaid Balance (left) | Amt Recvd in Visits (right) -->
+                            <div class="row mb-2" id="allot-extra-row-2">
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold">Unpaid Balance on Date of Selling (₹)</label>
+                                    <input type="text" class="form-control" id="allot-unpaid-balance-field" readonly disabled>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold">Amt Recvd in Visits (₹)</label>
+                                    <input type="text" class="form-control" id="allot-addl-amt-visits" readonly disabled>
+                                </div>
+                            </div>
+                            <!-- Payment History Button -->
+                            <div class="text-center mb-0" id="allot-payment-history-wrapper">
+                                <button type="button" id="btn-payment-history"
+                                    title="To see Payment History Click here"
+                                    data-bs-toggle="tooltip" data-bs-placement="top"
+                                    class="btn btn-outline-secondary btn-sm"
+                                    aria-label="Payment History">
+                                    💰 Payment History
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Navigation for multiple existing packages -->
+                        <div id="allot-existing-nav" class="d-flex align-items-center gap-2 mb-2" style="display:none;">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" id="btn-allot-prev">&#8592; Previous</button>
+                            <span id="allot-existing-nav-label" class="small text-muted"></span>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" id="btn-allot-next">Next &#8594;</button>
+                        </div>
+                        <div class="d-flex gap-2 mt-2">
+                        <button type="submit" class="btn btn-dark w-100" id="btn-allot-sell">Sell Package</button>
+                        <button type="button" class="btn btn-warning w-100 d-none" id="btn-allot-modify">Modify</button>
+                        <button type="button" class="btn btn-danger w-100 d-none" id="btn-allot-delete">Delete</button>
+                        <button type="button" class="btn btn-outline-secondary w-100" id="btn-reset-allot">Reset</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Scrollable list of non-expired customer packages -->
+            <div class="card mt-4">
+                <div class="card-header bg-secondary text-white fw-bold">Active & Expired Packages</div>
+                <div class="card-body">
+                    <div class="position-relative mb-3">
+                        <input type="text" id="allot-packages-search" class="form-control form-control-sm pe-4" placeholder="🔍 Search by customer name…" autocomplete="off">
+                        <button type="button" id="btn-clear-allot-packages-search" tabindex="-1"
+                            style="position:absolute;right:6px;top:50%;transform:translateY(-50%);border:none;background:none;color:var(--bs-secondary);font-size:14px;line-height:1;padding:0;cursor:pointer;display:none;"
+                            aria-label="Clear search">&#x2715;</button>
+                    </div>
+                    <div style="height:400px;overflow-y:auto;border:1px solid #dee2e6;border-radius:4px;">
+                        <table class="table table-sm table-hover mb-0">
+                            <thead style="position:sticky;top:0;background-color:#f8f9fa;z-index:10;">
+                                <tr>
+                                    <th style="width:20%;">Customer Name</th>
+                                    <th style="width:15%;">Mobile</th>
+                                    <th style="width:25%;">Package Name</th>
+                                    <th style="width:15%;">Allot Date</th>
+                                    <th style="width:15%;">Selling Price</th>
+                                    <th style="width:10%;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allot-packages-tbody">
+                                <tr><td colspan="6" class="text-center text-muted py-3">No packages to display</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-adm-catalog" class="view-section">
+            <h3 class="mb-4 fw-bold">Services</h3>
+
+            <div class="card mb-4" hidden>
+                <div class="card-header bg-secondary text-white fw-bold">Step 1: Add/Modify Main Category (e.g. Hair Services, Skin & Beauty Services)</div>
+                <div class="card-body">
+                    <form id="frm-adm-category">
+                        <div class="mb-3 p-2 bg-warning-subtle rounded border border-warning">
+                            <label for="cat-select-existing" class="form-label small fw-bold text-dark">
+                                ✨ To Update or Remove a Category, Choose It Here First:
+                            </label>
+                            <select class="form-select border-warning" id="cat-select-existing">
+                                <option value="">-- Choose an Existing Category --</option>
+                            </select>
+                            <div class="form-text text-muted small">Leave blank when adding a new category.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Category Name</label>
+                            <input type="text" class="form-control" id="cat-name" placeholder="e.g., Hair Services" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Category Short Description</label>
+                            <input type="text" class="form-control" id="cat-desc" placeholder="e.g., Haircuts, coloring, and styling">
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="cat-active" checked>
+                            <label class="form-check-label small" for="cat-active">Make this Category active on current menu</label>
+                        </div>
+                        <button type="submit" class="btn btn-secondary btn-sm">Save Main Category</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mb-4" hidden>
+                <div class="card-header bg-secondary text-white fw-bold">Step 2: Add/Modify Main Service (e.g. Hair Coloring, Facials, Event Makeup)</div>
+                <div class="card-body">
+                    <form id="frm-adm-service">
+                        <div class="mb-3 p-2 bg-warning-subtle rounded border border-warning">
+                            <label for="srv-select-existing" class="form-label small fw-bold text-dark">
+                                ✨ To Update or Remove a Service, Choose It Here First:
+                            </label>
+                            <select class="form-select border-warning" id="srv-select-existing">
+                                <option value="">-- Choose an Existing Service --</option>
+                            </select>
+                            <div class="form-text text-muted small">Leave blank when adding a new service.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Belongs to Main Category </label>
+                            <select class="form-select" id="srv-parent-cat" required></select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Service Name</label>
+                            <input type="text" class="form-control" id="srv-name" placeholder="e.g., Hair Coloring" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Short Description of Service</label>
+                            <input type="text" class="form-control" id="srv-desc" placeholder="e.g., Global color,  Highlights, Root touch‑ups">
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="srv-active" checked>
+                            <label class="form-check-label small" for="srv-active">Make this Service active on current menu</label>
+                        </div>
+                        <button type="submit" class="btn btn-secondary btn-sm">Save Main Service</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-secondary text-white fw-bold">Add/Modify Individual Service (e.g. Basic trims, Fruit Facial, Engagement Makeup )</div>
+                <div class="card-body">
+                    <form id="frm-adm-subservice">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Individual Service Name</label>
+                            <input type="text" class="form-control" id="sub-name" placeholder="e.g. Anti Tan Facial" required
+                                autocapitalize="words" oninput="this.value=this.value.replace(/\b\w/g,c=>c.toUpperCase())">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Belongs to Which Main Service</label>
+                            <select class="form-select" id="sub-parent-srv" required></select>
+                            <div class="position-relative mt-1">
+                                <input type="text" id="sub-parent-srv-search" class="form-control form-control-sm pe-4" placeholder="🔍 Search main service by name…" autocomplete="off">
+                                <button type="button" id="btn-clear-parent-srv-search" tabindex="-1"
+                                    style="position:absolute;right:6px;top:50%;transform:translateY(-50%);border:none;background:none;color:var(--bs-secondary);font-size:14px;line-height:1;padding:0;cursor:pointer;display:none;"
+                                    aria-label="Clear search">&#x2715;</button>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold">Price (Rs)</label>
+                                <input type="number" class="form-control" id="sub-rate" placeholder="e.g. 250" required min="0.01" step="any" style="-moz-appearance:textfield; appearance:textfield;">
+                            </div>
+                            <div class="col-md-6 mb-3" hidden>
+                                <label class="form-label small fw-bold">Duration to Serve the Individual Service (Minutes)</label>
+                                <input type="number" class="form-control" id="sub-duration" placeholder="e.g. 45">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Service Applicable to Gender</label>
+                            <select class="form-select" id="sub-gender" required>
+                                <option value="">-- Choose Gender --</option>
+                                <option value="F">Female</option>
+                                <option value="M">Male</option>
+                                <option value="U" disabled>Unisex</option>
+                            </select>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="sub-active" checked>
+                            <label class="form-check-label small" for="sub-active">Make this Individual Service active on menu card</label>
+                        </div>
+
+                        <div class="mb-3 p-2 bg-warning-subtle rounded border border-warning">
+                            <label for="sub-select-existing" class="form-label small fw-bold text-dark">
+                                ✨ To Modify or Delete an Item, Choose It Here First:
+                            </label>
+                            <select class="form-select border-warning" id="sub-select-existing">
+                                <option value="">-- Choose an Existing Serviceable Item --</option>
+                                </select>
+                            <div class="position-relative mt-1">
+                                <input type="text" id="sub-select-search" class="form-control form-control-sm pe-4" placeholder="🔍 Search sub-service by name…" autocomplete="off">
+                                <button type="button" id="btn-clear-sub-select-search" tabindex="-1"
+                                    style="position:absolute;right:6px;top:50%;transform:translateY(-50%);border:none;background:none;color:var(--bs-secondary);font-size:14px;line-height:1;padding:0;cursor:pointer;display:none;"
+                                    aria-label="Clear search">&#x2715;</button>
+                            </div>
+                            <div class="form-text text-muted small">DO NOT Select from Above if you are adding a fresh item.</div>
+                        </div>
+
+                        <div class="d-flex gap-2 mt-2">
+                            <button type="submit" class="btn btn-secondary btn-sm w-100">Save Individual Service</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm w-100" id="btn-reset-subservice">Reset</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <h4 class="fw-bold mt-4 mb-3">Service Menu</h4>
+            <div class="card mb-4">
+                <div class="card-body p-2">
+                    <div class="row">
+                        <div class="col-md-6 mb-3" hidden>
+                            <div class="border p-2 bg-light rounded small">
+                                <strong class="d-block mb-2">Categories Loaded:</strong>
+                                <table class="table table-sm table-borderless my-0 bg-transparent"><tbody id="tbl-adm-categories"></tbody></table>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3" hidden>
+                            <div class="border p-2 bg-light rounded small">
+                                <strong class="d-block mb-2">Services Loaded:</strong>
+                                <table class="table table-sm table-borderless my-0 bg-transparent"><tbody id="tbl-adm-services"></tbody></table>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="border p-2 bg-light rounded small">
+                                <table class="table table-sm table-borderless my-0 bg-transparent w-100"><tbody id="tbl-adm-subservices"></tbody></table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-adm-packs" class="view-section">
+            <div class="card mb-4">
+                <div class="card-header bg-dark text-white fw-bold">Define New Multi-Service Package Offer</div>
+                <div class="card-body">
+                    <form id="frm-adm-commonpack">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold">Package Name</label>
+                                <input type="text" class="form-control" id="pack-name-id" placeholder="e.g. Gold Pack or Bridal Glow Premium Pack" required>
+                            </div>
+                            <div class="col-md-6 mb-3" style="display:none;">
+                                <label class="form-label small fw-bold">Package Type</label>
+                                <select class="form-select" id="pack-type-select" required>
+                                    <option value="Type3" selected>Prime Discount Package</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row align-items-end">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold" id="lbl-pack-total-amt">Total Price of Individual Services  (₹)</label>
+                                <input type="number" class="form-control" id="pack-total-amt" placeholder="Sum of all included individual services" readonly min="0.01" step="any" style="-moz-appearance:textfield; appearance:textfield;">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold">Pack Offered Price (₹)</label>
+                                <div class="d-flex align-items-center gap-2">
+                                    <input type="number" class="form-control" id="pack-price" placeholder="Package Price Offered to Customers" required min="0.01" step="any" style="-moz-appearance:textfield; appearance:textfield;">
+                                    <span id="pack-discount-display" class="text-success fw-bold small text-nowrap"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold" id="lbl-pack-subservices">Choose Individual Service Items Allowed in this Pack</label>
+                            <div class="position-relative mb-2">
+                                <input type="text" id="pack-subservices-search" class="form-control form-control-sm pe-4" placeholder="🔍 Search service items…" autocomplete="off">
+                                <button type="button" id="btn-clear-pack-subservices-search" tabindex="-1"
+                                    style="position:absolute;right:6px;top:50%;transform:translateY(-50%);border:none;background:none;color:var(--bs-secondary);font-size:14px;line-height:1;padding:0;cursor:pointer;display:none;"
+                                    aria-label="Clear search">&#x2715;</button>
+                            </div>
+                            <div id="container-pack-subservices" class="p-3 border rounded bg-light" style="max-height: 200px; overflow-y: auto;"></div>
+                            <div id="pack-subservices-sum" class="form-text fw-bold text-success mt-2">Selected items total: ₹0</div>
+                        </div>
+                        <div class="row align-items-center mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">[Optional] Promo Poster Image File</label>
+                                <input type="file" class="form-control form-control-sm" id="pack-promo-file" accept="image/*">
+                            </div>
+                            <div class="col-md-6 text-center">
+                                <img id="preview-pack-img" src="" alt="Promo Banner Image" class="img-thumbnail mt-2" style="max-height: 100px; display: none;">
+                            </div>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="pack-active" checked>
+                            <label class="form-check-label small" for="pack-active">Open Package for Customer Subscription & Billing</label>
+                        </div>
+                        <div class="mb-3 p-2 bg-warning-subtle rounded border border-warning">
+                            <label for="pack-select-existing" class="form-label small fw-bold text-dark">
+                                ✨ To Update or Remove a Package, Choose It Here First:
+                            </label>
+                            <select class="form-select border-warning" id="pack-select-existing">
+                                <option value="">-- Choose an Existing Package --</option>
+                            </select>
+                            <div class="position-relative mt-1">
+                                <input type="text" id="pack-select-search" class="form-control form-control-sm pe-4" placeholder="🔍 Search package by name…" autocomplete="off">
+                                <button type="button" id="btn-clear-pack-select-search" tabindex="-1"
+                                    style="position:absolute;right:6px;top:50%;transform:translateY(-50%);border:none;background:none;color:var(--bs-secondary);font-size:14px;line-height:1;padding:0;cursor:pointer;display:none;"
+                                    aria-label="Clear search">&#x2715;</button>
+                            </div>
+                            <div class="form-text text-muted small">Leave blank when defining a new package offer.</div>
+                        </div>
+                        <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-dark w-100">Save and Register Package Offer</button>
+                        <button type="button" class="btn btn-outline-secondary w-100" id="btn-reset-commonpack">Reset</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <h4 class="fw-bold mb-3">Current Active Offers Available</h4>
+            <div class="table-responsive small border rounded">
+                <table class="table table-hover my-0"><thead class="table-light"><tr><th>Package Name/ID </th><th hidden>Calculation Type</th><th>Offer Price</th><th>Actual Price</th><th>Service Counts</th><th>Status</th><th>Options</th></tr></thead><tbody id="tbl-adm-commonpacks"></tbody></table>
+            </div>
+        </section>
+
+        <section id="sec-adm-users" class="view-section">
+
+            <div class="card mb-4" id="card-user-profile-form">
+                <div class="card-header bg-success text-white fw-bold">Add New Customer or Staff User Profile</div>
+                <div class="card-body">
+                    <form id="frm-adm-user-profile">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Registration/Registered User Profile Type</label>
+                            <select class="form-select text-danger fw-bold" id="usr-role">
+                                <option value="">-- Click here to choose User profile type --</option>
+                                <option value="OWNER" hidden>OWNER</option>
+                                <option value="CUSTOMER">CUSTOMER</option>
+                                <option value="MANAGER">MANAGER</option>
+                                <option value="STAFF">STAFF</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Full Name</label>
+                            <input type="text" class="form-control" id="usr-fullname" placeholder="First and Last name" required autocapitalize="words"
+                                oninput="this.value=this.value.replace(/\b\w/g,c=>c.toUpperCase())">
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold">Gender</label>
+                                <select class="form-select" id="usr-sex">
+                                    <option value="F" selected>Female</option>
+                                    <option value="M">Male</option>
+                                    <option value="O">Other</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold">Mobile Phone Number</label>
+                                <input type="tel" class="form-control" id="usr-phone" placeholder="e.g., 9810001234" required pattern="[0-9]{10}" maxlength="10" title="Enter a valid 10-digit mobile number">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold">Age Category</label>
+                                <select class="form-select" id="usr-age">
+                                    <option value="">-- Select age category --</option>
+                                    <option value="Kids (3–12)">Kids (3–12)</option>
+                                    <option value="Teens (13–19)">Teens (13–19)</option>
+                                    <option value="Young Adults (20–29)">Young Adults (20–29)</option>
+                                    <option value="Professionals (30–45)">Professionals (30–45)</option>
+                                    <option value="Gen X (Ages 46–60)">Gen X (Ages 46–60)</option>
+                                    <option value="Seniors (61+)">Seniors (61+)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div id="usr-distance-wrapper">
+                                <label class="form-label small fw-bold">Distance from Salon Branch (km)</label>
+                                <select class="form-select" id="usr-distance">
+                                    <option value="">-- Select distance range --</option>
+                                    <option value="Hyper-Local Range (0–3 km)">Hyper-Local Range (0–3 km)</option>
+                                    <option value="Local Range (3–7 km)">Local Range (3–7 km)</option>
+                                    <option value="Mid Range (8-11 km)">Mid Range (8-11 km)</option>
+                                    <option value="Regional Range (12+ km)">Regional Range (12+ km)</option>
+                                </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold">App Sign-In Password [Optional For Customer]</label>
+                                <input type="password" class="form-control" id="usr-password" placeholder="Create Login Password (Mandatory for Manager)">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold">Confirm Password [Optional For Customer]</label>
+                                <input type="password" class="form-control" id="usr-confirm-password" placeholder="Re-enter Password (Mandatory for Manager)">
+                                <div id="usr-pwd-mismatch-msg" class="text-danger small mt-1" style="display:none;">⚠️ Passwords do not match.</div>
+                            </div>
+                        </div>
+                        <div class="row" id="usr-reg-fee-wrapper">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold">Registration Fee [Optional]</label>
+                                <input type="number" class="form-control" id="usr-reg-fee" placeholder="e.g. 500" min="0" step="any" style="-moz-appearance:textfield; appearance:textfield;">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold">Registration Date</label>
+                                <input type="date" class="form-control" id="usr-reg-date">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold" id="lbl-usr-email">Email Address [Optional]</label>
+                            <input type="email" class="form-control" id="usr-email" placeholder="client@domain.com">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Home & Street Address [Optional]</label>
+                            <textarea class="form-control" id="usr-address" rows="4" placeholder="Physical Address details"></textarea>
+                        </div>
+                        <div class="mb-3" id="usr-mapurl-wrapper" style="display:none;">
+                            <label class="form-label small fw-bold">Google Maps Pin Location URL</label>
+                            <input type="url" class="form-control" id="usr-mapurl" placeholder="Paste navigation coordinate links if available">
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="usr-active" checked>
+                            <label class="form-check-label small" for="usr-active">Activate Profile record immediately</label>
+                        </div>
+                        <div class="mb-3 p-2 bg-warning-subtle rounded border border-warning" id="usr-select-existing-wrapper">
+                            <label for="usr-select-existing" class="form-label small fw-bold text-dark">
+                                ✨ To Update or Remove a Profile, Choose It Here First:
+                            </label>
+                            <select class="form-select border-warning" id="usr-select-existing">
+                                <option value="">-- Choose an Existing Profile --</option>
+                            </select>
+                            <div class="position-relative mt-1">
+                                <input type="text" id="usr-select-search" class="form-control form-control-sm pe-4" placeholder="🔍 Search user by name or role…" autocomplete="off">
+                                <button type="button" id="btn-clear-usr-select-search" tabindex="-1"
+                                    style="position:absolute;right:6px;top:50%;transform:translateY(-50%);border:none;background:none;color:var(--bs-secondary);font-size:14px;line-height:1;padding:0;cursor:pointer;display:none;"
+                                    aria-label="Clear search">&#x2715;</button>
+                            </div>
+                            <div class="form-text text-muted small">Leave blank when registering a new Customer or staff member.</div>
+                        </div>
+                        <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-success w-100 fw-bold">Save Profile Record</button>
+                        <button type="button" class="btn btn-outline-secondary w-100" id="btn-reset-userprofile">Reset</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mb-4 border-danger" hidden>
+                <div class="card-header bg-danger text-white fw-bold">Security & Permissions (Staff Work Roles)</div>
+                <div class="card-body">
+                    <form id="frm-access-control-matrix">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Target Staff Work Classification Role</label>
+                            <select class="form-select" id="access-target-role" required>
+                                <option value="MANAGER" selected>Salon Managers</option>
+                                <option value="STAFF">Salon Staff</option>
+                            </select>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="rights-read-common" checked>
+                            <label class="form-check-label small" for="rights-read-common">Allowed to see public package options list</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="rights-read-customer" checked>
+                            <label class="form-check-label small" for="rights-read-customer">Allowed to read Customer personal balances details</label>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="rights-write-allowed">
+                            <label class="form-check-label small text-danger fw-bold" for="rights-write-allowed">Allowed to change master settings and create files</label>
+                        </div>
+                        <button type="submit" class="btn btn-outline-danger btn-sm">Update Group Access Rights</button>
+                    </form>
+                </div>
+            </div>
+
+            <h4 class="fw-bold mb-3" id="lbl-registered-profiles-heading">Registered Profiles</h4>
+            <div class="card mb-4" id="card-registered-profiles">
+                <div class="p-2" style="display:none;">
+                    <div class="position-relative mb-2">
+                        <input type="text" id="tbl-adm-users-search" class="form-control form-control-sm pe-4" placeholder="🔍 Search by name…" autocomplete="off">
+                        <button type="button" id="btn-clear-tbl-adm-users-search" tabindex="-1"
+                            style="position:absolute;right:6px;top:50%;transform:translateY(-50%);border:none;background:none;color:var(--bs-secondary);font-size:14px;line-height:1;padding:0;cursor:pointer;display:none;"
+                            aria-label="Clear search">&#x2715;</button>
+                    </div>
+                </div>
+                <div class="table-responsive small border rounded" style="max-height:400px; overflow-y:auto;">
+                    <table class="table table-hover my-0"><thead class="table-light sticky-top"><tr><th>Serial ID</th><th>Role Type</th><th>Full Name</th><th>Phone</th><th>Email Id</th><th>Working Status</th><th>Actions</th></tr></thead><tbody id="tbl-adm-users"></tbody></table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Change Password Section -->
+        <section id="sec-change-password" class="view-section">
+            <h4 class="fw-bold mb-3">🔑 Change Password</h4>
+            <div class="card shadow-sm p-4" style="max-width:480px;">
+                <form id="frm-change-password">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Old Password</label>
+                        <input type="password" class="form-control" id="chpwd-old" placeholder="Enter current password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">New Password</label>
+                        <input type="password" class="form-control" id="chpwd-new" placeholder="Enter new password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Confirm New Password</label>
+                        <input type="password" class="form-control" id="chpwd-confirm" placeholder="Re-enter new password" required>
+                        <div id="chpwd-mismatch-msg" class="text-danger small mt-1" style="display:none;">⚠️ New passwords do not match.</div>
+                    </div>
+                    <button type="submit" class="btn btn-dark w-100">Update Password</button>
+                </form>
+            </div>
+        </section>
+
+    <script src="vendor/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script type="module" src="./modules/main.js"></script>
+
+    <!-- PWA: Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('[GlamTrack] SW registered. Scope:', reg.scope))
+                    .catch(err => console.warn('[GlamTrack] SW registration failed:', err));
+            });
+        }
+    </script>
+
+    <!-- Offline detection & font-scale guard -->
+    <script>
+        // ── Offline / Online banner ──────────────────────────────────────────
+        const _offlineBanner = document.getElementById('offline-banner');
+        function _updateOnlineStatus() {
+            if (!navigator.onLine) {
+                _offlineBanner.style.display = 'block';
+                // Push content down so banner doesn't overlap navbar
+                document.body.style.paddingTop = (_offlineBanner.offsetHeight + 56) + 'px';
+            } else {
+                _offlineBanner.style.display = 'none';
+                document.body.style.paddingTop = '';
+            }
+        }
+        window.addEventListener('online',  _updateOnlineStatus);
+        window.addEventListener('offline', _updateOnlineStatus);
+        _updateOnlineStatus(); // run once on load
+
+        // ── Font-scale guard: prevent OS "Extra Large" font from breaking layout ─
+        // Clamp document font-size between 13px and 17px regardless of system setting
+        (function() {
+            const base = Math.min(Math.max(parseFloat(getComputedStyle(document.documentElement).fontSize), 13), 17);
+            document.documentElement.style.fontSize = base + 'px';
+        })();
+    </script>
+
+    <!-- Privacy Policy Footer — placed at bottom of page -->
+    <div id="privacy-footer">
+        <a href="https://glamtrack.netlify.app/privacy.html" target="_blank" rel="noopener">Privacy Policy</a>
+        &nbsp;·&nbsp; © 2025 GlamTrack. All rights reserved.
+    </div>
+
+</body>
+</html>
