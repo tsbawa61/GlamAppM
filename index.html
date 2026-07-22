@@ -28,8 +28,8 @@
     <style>
         .view-section { display: none; }
         .view-section.active { display: block; }
-        body { padding-bottom: 2rem; }
-        .container-fluid.main-wrap { padding-bottom: 2rem; }
+        body { padding: 0; margin: 0; display: flex; flex-direction: column; min-height: 100vh; }
+        .container-fluid.main-wrap { padding-bottom: 0; }
         /* sec-login: white card above background image */
         #sec-login {
             background: #ffffff;
@@ -41,20 +41,20 @@
             position: relative;
             z-index: 200;
         }
-        /* sec-home: fixed footer, below sec-login z-index */
+        /* sec-home: sticky header banner */
         #sec-home {
-            position: fixed !important;
-            bottom: 0; left: 0; right: 0;
+            position: relative;
             max-height: 320px;
             overflow-y: auto;
             background: rgba(255,255,255,0.96);
             border-top: 2px solid #dee2e6;
-            z-index: 1000;
+            z-index: 10;
             padding: 0.5rem 1rem !important;
+            flex-shrink: 0;
         }
         #sec-home h1 { font-size: 2.2rem; margin-bottom: 0.4rem; }
         #sec-home p  { font-size: 1.6rem; margin-bottom: 0.4rem; }
-        .container { padding-bottom: 330px; }
+        .container { padding-bottom: 2rem; flex: 1; }
         /* White background when no bg image */
         body:not(.bg-glamtrack) > .container { background: #ffffff; }
         /* Background image: contained, no overflow, scroll not fixed */
@@ -83,8 +83,8 @@
         .glamtrack-stat-clickable:hover { box-shadow: 0 0 0 3px rgba(0,0,0,.15); }
         /* Responsive */
         @media (max-width: 768px) {
-            .container { padding-bottom: 160px; max-width: 100% !important; }
-            #sec-home { max-height: 140px; z-index: 50; margin-top: 0 !important; padding-top: 0.25rem !important; }
+            .container { padding-bottom: 1rem; max-width: 100% !important; }
+            #sec-home { max-height: 140px; padding-top: 0.25rem !important; }
             #sec-home h1 { font-size: 1.1rem; }
             #sec-home p  { font-size: 0.85rem; }
             #sec-login { margin: 0.75rem auto; }
@@ -92,7 +92,7 @@
             .card-body { padding: 0.75rem !important; }
             .table { font-size: 0.75rem; }
             .form-control, .form-select { font-size: 0.875rem; }
-            .btn { font-size: 0.875rem; }
+            .btn { font-size: 0.875rem; padding: 0.4rem 0.6rem; }
             /* Background image: show wholly within mobile viewport, no cropping */
             body.bg-glamtrack {
                 background-size: contain;
@@ -101,16 +101,21 @@
             }
             .col-md-6, .col-md-4, .col-md-3 { width: 100%; }
             /* Navbar: keep menu items compact on mobile */
-            #main-nav-links .nav-link { font-size: 0.82rem; padding: 0.2rem 0.4rem; }
-            #main-nav-links .dropdown-toggle { font-size: 0.82rem; }
+            #main-nav-links { gap: 0.3rem !important; }
+            #main-nav-links .nav-link { font-size: 0.75rem; padding: 0.3rem 0.5rem !important; white-space: nowrap; }
+            #main-nav-links .navbar-brand { font-size: 0.9rem !important; }
+            #main-nav-links .dropdown-toggle { font-size: 0.75rem; }
             #lbl-salon-name, #lbl-logged-in-role, #lbl-active-context { font-size: 0.72rem; }
             /* (f) User profile form card scrollable on mobile */
             #card-user-profile-form { max-height: 80vh; overflow-y: auto; }
+            nav.navbar { padding: 0.3rem 0 !important; }
         }
         /* On md+ screens, suppress the mobile line-break div */
         @media (min-width: 768px) {
             #main-nav-links { flex-wrap: nowrap !important; }
             #main-nav-links .d-md-none { display: none !important; }
+            #main-nav-links .nav-link { font-size: 0.95rem; padding: 0.5rem 0.75rem !important; }
+            nav.navbar { padding: 0.5rem 0 !important; }
         }
         /* Offline banner */
         #offline-banner {
@@ -130,19 +135,19 @@
         html { font-size: clamp(13px, 2vw, 16px); }
         /* Keyboard padding on mobile so submit buttons stay visible */
         @media (max-width: 768px) {
-            .view-section.active { padding-bottom: 80px !important; }
+            .view-section.active { padding-bottom: 4rem !important; }
         }
-        /* Privacy policy footer */
+        /* Privacy policy footer - flex layout */
         #privacy-footer {
             text-align: center;
-            padding: 0.4rem;
+            padding: 0.5rem;
             font-size: 0.78rem;
             color: #6c757d;
             border-top: 1px solid #dee2e6;
             background: #fff;
-            position: fixed;
-            bottom: 0; left: 0; right: 0;
-            z-index: 999;
+            flex-shrink: 0;
+            width: 100%;
+            z-index: 900;
         }
         #privacy-footer a { color: #6f42c1; text-decoration: none; }
         #privacy-footer a:hover { text-decoration: underline; }
